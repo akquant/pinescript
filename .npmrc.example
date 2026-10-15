@@ -1,3 +1,9 @@
-# Cấu hình cài đặt package từ GitHub Packages
-@loctai:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+# Package này đã publish PUBLIC lên npm — không cần .npmrc để cài.
+# File này chỉ dùng nếu bạn publish (ghi) package lên npm.
+#
+# Khi publish, cần token npm Granular Access Token với quyền Read and write
+# (và "Bypass two-factor authentication" nếu tài khoản bật 2FA):
+#
+#   //registry.npmjs.org/:_authToken=${NPM_TOKEN}
+#
+# Sau đó: export NPM_TOKEN="npm_xxxxxxxx" && npm publish
