@@ -50,7 +50,8 @@ export interface StrategyPerformanceMetrics {
 
 export interface PineScriptRunResult {
   success: boolean;
-  strategyName: string;
+  strategyName?: string;
+  overlay?: boolean;
   plots: PlotData[];
   signals: StrategySignal[];
   errors: string[];
