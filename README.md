@@ -1,36 +1,54 @@
 # @loctai/pinescript
 
-Enterprise Pine Script v5 / v6 compiler, lexer, AST parser, and high-performance execution engine designed for QuantTrade Client Terminal & FCOM Trading Bot.
+High-performance Pine Script v5 / v6 compiler, AST parser, and bar-by-bar execution engine written in TypeScript. Designed for real-time charting terminals and institutional algorithmic trading bots.
 
-## Features
+[![GitHub license](https://img.shields.io/badge/license-UNLICENSED-blue.svg)](https://github.com/loctai/pinescript)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org)
 
-- **Pine Script Parser & AST:** Parses Pine Script indicators and strategies into structured AST.
-- **Built-in Functions:** Full support for `ta.*` (EMA, SMA, RSI, ATR, SuperTrend, MACD, Bollinger Bands, Stochastics, etc.), `strategy.*` (entry, close, exit, equity, open/closed trades), `table.*`, `line.*`, `label.*`, `box.*`, and `request.security`.
-- **Zero External Runtime Dependencies:** 100% pure TypeScript, ultra-fast and lightweight.
-- **Dual Support:** Runs directly in browser (Vite/React) and server-side Node.js (Fastify/Worker threads).
-- **Guaranteed Parity:** Ensures 1:1 identical signals and calculations between client chart rendering and trading bot execution.
+---
+
+## Key Features
+
+- **Pine Script v5/v6 Lexer & AST Parser:** Full tokenizer and grammar parser that compiles Pine Script into an optimized Abstract Syntax Tree (AST).
+- **Bar-by-Bar Runtime Engine:** Replicates TradingView execution semantics with tick-level and close-of-bar calculations.
+- **Built-in Functions & Namespaces:**
+  - `ta.*`: EMA, SMA, RMA, WMA, VWMA, RSI, ATR, Supertrend, MACD, Bollinger Bands, Stochastics, etc.
+  - `strategy.*`: `entry()`, `exit()`, `close()`, `cancel()`, `position_size`, `position_avg_price`, `equity`, and closed trade metrics.
+  - Visual primitives: `plot()`, `hline()`, `fill()`, `line.*`, `label.*`, `box.*`, and `table.*`.
+  - Environmental variables: `time`, `timenow`, `bar_index`, `barstate.*`, and `syminfo.*`.
+  - Multi-timeframe requests: `request.security()`.
+- **Zero External Runtime Dependencies:** 100% pure TypeScript. Ultra-fast, lightweight, and tree-shakeable.
+- **Universal Dual Compatibility:** Runs seamlessly in the browser (Vite, Next.js, React) and on the server (Node.js Fastify, Express, Web Workers).
+- **Guaranteed Parity:** Assures 1:1 identical signals and calculations across UI charts and execution engines.
 
 ---
 
 ## Installation
 
-### Từ GitHub Packages
+### 1. Configure Authentication (`.npmrc`)
 
-1. Tạo file `.npmrc` trong thư mục dự án (hoặc `~/.npmrc`):
+GitHub Packages requires authentication to download packages. Create or update `.npmrc` in your project root or home directory (`~/.npmrc`):
+
 ```ini
 @loctai:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PERSONAL_ACCESS_TOKEN
 ```
-*(Token cần quyền `read:packages`)*
 
-2. Cài đặt package:
+> **Note:** The GitHub Personal Access Token (PAT) must have the `read:packages` scope enabled.
+
+### 2. Install Package
+
 ```bash
 npm install @loctai/pinescript
 ```
 
-### Dùng Local File (Development)
+Or using Yarn / PNPM:
+
 ```bash
-npm install file:../pinescript
+yarn add @loctai/pinescript
+# or
+pnpm add @loctai/pinescript
 ```
 
 ---
@@ -40,56 +58,157 @@ npm install file:../pinescript
 ```typescript
 import { PineScriptRunner, type CandleData } from '@loctai/pinescript';
 
+// 1. Prepare historical candle data
 const candles: CandleData[] = [
   { time: 1710000000, open: 100, high: 105, low: 99, close: 104, volume: 1500 },
+  { time: 1710000900, open: 104, high: 108, low: 103, close: 107, volume: 1800 },
   // ...
 ];
 
-const pineCode = `
+const pineScriptSource = `
 //@version=5
-strategy("EMA Cross", overlay=true)
-fastMA = ta.ema(close, 9)
-slowMA = ta.ema(close, 21)
+strategy("EMA Trend Crossover", overlay=true, initial_capital=10000)
+
+fastLen = input.int(9, "Fast Length")
+slowLen = input.int(21, "Slow Length")
+
+fastMA = ta.ema(close, fastLen)
+slowMA = ta.ema(close, slowLen)
 
 plot(fastMA, color=color.cyan, title="Fast EMA")
 plot(slowMA, color=color.orange, title="Slow EMA")
 
-if ta.crossover(fastMA, slowMA)
+longCondition = ta.crossover(fastMA, slowMA)
+shortCondition = ta.crossunder(fastMA, slowMA)
+
+if longCondition
     strategy.entry("Long", strategy.long)
-if ta.crossunder(fastMA, slowMA)
+if shortCondition
     strategy.entry("Short", strategy.short)
 `;
 
-// 1. Kiểm tra cú pháp
-const validation = PineScriptRunner.validate(pineCode);
+// 2. Validate syntax
+const validation = PineScriptRunner.validate(pineScriptSource);
 if (!validation.valid) {
-  console.error("Syntax errors:", validation.errors);
+  console.error("Syntax Errors:", validation.errors);
 }
 
-// 2. Chạy tính toán trên nến
-const result = PineScriptRunner.run(pineCode, candles);
+// 3. Execute script across candles
+const result = PineScriptRunner.run(pineScriptSource, candles);
+
 if (result.success) {
   console.log("Plots:", result.plots);
   console.log("Signals:", result.signals);
-  console.log("Performance:", result.performance);
+  console.log("Performance Metrics:", result.strategyMetrics);
 }
 ```
 
 ---
 
-## Publishing to GitHub Packages
+## API Reference
 
-### Tự động qua GitHub Actions
-Khi push code hoặc tạo Release trên nhánh `main`, file `.github/workflows/publish.yml` sẽ tự động build và publish package lên `npm.pkg.github.com` bằng `GITHUB_TOKEN`.
+### `PineScriptRunner.validate(code: string): PineScriptValidation`
+Performs static analysis, lexical analysis, and syntax validation without executing against data.
+- **Returns:** `{ valid: boolean; errors: string[] }`
 
-### Đăng thủ công bằng Terminal
+### `PineScriptRunner.run(code: string, candles: CandleData[], options?: RunnerOptions): PineScriptRunResult`
+Executes Pine Script logic sequentially across the given array of OHLCV candles.
+- **Returns:**
+  - `success: boolean`
+  - `plots: PlotData[]`
+  - `signals: StrategySignal[]`
+  - `strategyMetrics?: StrategyPerformanceMetrics`
+  - `lines?: LineObject[]`
+  - `labels?: LabelObject[]`
+  - `boxes?: BoxObject[]`
+  - `tables?: TableObject[]`
+  - `fills?: FillDrawing[]`
+  - `errors: string[]`
+
+---
+
+## Publishing Guide (How to Publish to GitHub Packages)
+
+### Option A: Automatic via GitHub Actions (Recommended)
+
+The repository includes an automated workflow at `.github/workflows/publish.yml`. Every time you push to the `main` branch or create a GitHub Release, GitHub Actions will:
+1. Run automated test suites (`npm test`).
+2. Build the production distribution (`npm run build`).
+3. Publish to GitHub Packages automatically using the repository's `GITHUB_TOKEN`.
+
+#### Workflow Steps:
+1. Bump the version in `package.json`:
+   ```bash
+   npm version patch # or minor, or major
+   ```
+2. Push commits and tags to GitHub:
+   ```bash
+   git push origin main --tags
+   ```
+3. GitHub Actions will handle testing, building, and publishing automatically.
+
+---
+
+### Option B: Manual Publishing via Terminal
+
+If you prefer to publish manually from your local development environment:
+
+#### 1. Generate a GitHub Personal Access Token (Classic)
+1. Go to **GitHub Settings** -> **Developer Settings** -> **Personal Access Tokens** -> **Tokens (classic)**.
+2. Click **Generate new token**.
+3. Select scopes:
+   - `write:packages` (Upload packages to GitHub Package Registry)
+   - `read:packages` (Download packages)
+   - `repo` (Optional: needed for private repository metadata)
+4. Copy the generated token (`ghp_xxxxxxxxxxxx`).
+
+#### 2. Authenticate NPM CLI
 ```bash
-# 1. Đăng nhập npm với GitHub Packages
 npm login --scope=@loctai --registry=https://npm.pkg.github.com
-# Username: <your-github-username>
-# Password: <your-github-personal-access-token-with-write:packages>
+```
+When prompted:
+- **Username:** Your GitHub username (`loctai`)
+- **Password:** Paste the GitHub Personal Access Token (`ghp_...`)
+- **Email:** Your GitHub account email
 
-# 2. Build & Publish
+#### 3. Build and Publish
+```bash
+# 1. Clean and build the distribution
+npm run build
+
+# 2. Publish to GitHub Packages
+npm publish
+```
+
+#### 4. Publishing Future Versions
+Always bump the version number before running `npm publish`:
+```bash
+npm version patch   # 1.0.0 -> 1.0.1
 npm run build
 npm publish
 ```
+
+---
+
+## Development & Testing
+
+```bash
+# Clone the repository
+git clone git@github.com:loctai/pinescript.git
+cd pinescript
+
+# Install dependencies
+npm install
+
+# Run Vitest test suite
+npm test
+
+# Build production dist
+npm run build
+```
+
+---
+
+## License
+
+Proprietary & Confidential. All rights reserved by QuantTrade.
