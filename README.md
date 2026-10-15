@@ -1,4 +1,4 @@
-# @quanttrade/pinescript
+# @loctai/pinescript
 
 Enterprise Pine Script v5 / v6 compiler, lexer, AST parser, and high-performance execution engine designed for QuantTrade Client Terminal & FCOM Trading Bot.
 
@@ -18,14 +18,14 @@ Enterprise Pine Script v5 / v6 compiler, lexer, AST parser, and high-performance
 
 1. Tạo file `.npmrc` trong thư mục dự án (hoặc `~/.npmrc`):
 ```ini
-@quanttrade:registry=https://npm.pkg.github.com
+@loctai:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
 ```
 *(Token cần quyền `read:packages`)*
 
 2. Cài đặt package:
 ```bash
-npm install @quanttrade/pinescript
+npm install @loctai/pinescript
 ```
 
 ### Dùng Local File (Development)
@@ -38,7 +38,7 @@ npm install file:../pinescript
 ## Quick Start
 
 ```typescript
-import { PineScriptRunner, type CandleData } from '@quanttrade/pinescript';
+import { PineScriptRunner, type CandleData } from '@loctai/pinescript';
 
 const candles: CandleData[] = [
   { time: 1710000000, open: 100, high: 105, low: 99, close: 104, volume: 1500 },
@@ -85,7 +85,7 @@ Khi push code hoặc tạo Release trên nhánh `main`, file `.github/workflows/
 ### Đăng thủ công bằng Terminal
 ```bash
 # 1. Đăng nhập npm với GitHub Packages
-npm login --scope=@quanttrade --registry=https://npm.pkg.github.com
+npm login --scope=@loctai --registry=https://npm.pkg.github.com
 # Username: <your-github-username>
 # Password: <your-github-personal-access-token-with-write:packages>
 
