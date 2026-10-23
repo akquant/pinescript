@@ -1,0 +1,85 @@
+import { DiagnosticReporter } from '../diagnostics/diagnostic';
+import { ScriptMetadata } from '../index';
+import { Program } from '../ast/nodes';
+export interface GenerateResult {
+    code: string;
+    metadata: ScriptMetadata;
+}
+export declare class CodeGenerator {
+    private reporter;
+    private mapper;
+    private varDecls;
+    private initLines;
+    private historyVars;
+    private varTypes;
+    private udtTypes;
+    private udtFieldOrder;
+    private udtMethods;
+    private userColors;
+    private plotIndex;
+    private hlineIndex;
+    private plotshapeIndex;
+    private plotcharIndex;
+    private plotarrowIndex;
+    private plotcandleIndex;
+    private plotbarIndex;
+    private callSiteCounter;
+    private metadata;
+    private indentLevel;
+    private readonly INDENT;
+    constructor(reporter: DiagnosticReporter);
+    generate(program: Program): GenerateResult;
+    private firstPass;
+    private extractIndicatorMeta;
+    private extractStrategyMeta;
+    /** Pre-scan the AST for IndexExpression where object is a non-builtin identifier. */
+    private scanForHistoryVars;
+    /** Infer the namespace type from an RHS call expression. */
+    private inferTypeFromCall;
+    /** Infer the namespace type from a type annotation. */
+    private inferTypeFromAnnotation;
+    private getLiteralValue;
+    private generateBody;
+    private generateStatement;
+    private genVarDecl;
+    private genFunctionDecl;
+    private genTypeDecl;
+    private genEnumDecl;
+    private defaultForType;
+    private genMethodDecl;
+    private genUdtConstructor;
+    private genAssignment;
+    private getIdentName;
+    private genIfStatement;
+    private genForStatement;
+    private genForInStatement;
+    private genWhileStatement;
+    private genSwitchStatement;
+    private genExpr;
+    private genLiteral;
+    private genIdentifier;
+    private genBinary;
+    private genUnary;
+    private genConditional;
+    private genCall;
+    private genInputCall;
+    private genPlotCall;
+    private genHlineCall;
+    private genFillCall;
+    private genBgcolorCall;
+    private genPlotshapeCall;
+    private genPlotcharCall;
+    private genPlotarrowCall;
+    private genPlotcandleCall;
+    private genPlotbarCall;
+    private resolveColor;
+    private genMember;
+    private genIndex;
+    private genArrayLiteral;
+    private genLambda;
+    private genIfExpr;
+    private genSwitchExpr;
+    private genArgs;
+    private indent;
+    private calleeToString;
+}

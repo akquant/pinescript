@@ -1,0 +1,165 @@
+import { ScriptMetadata } from '../compiler/index';
+import { Series } from './types/series';
+import { isNa, nz, fixnan, NA } from './types/na';
+import { color } from './types/color';
+import { math } from './builtins/math';
+import { TaModule } from './builtins/ta';
+import { BarState } from './builtins/barstate';
+import { BuiltinVariables } from './builtins/variables';
+import { str } from './builtins/str';
+import { arrayModule, mapModule, matrixModule } from './builtins/collections';
+import { SymInfo } from './builtins/syminfo';
+import { TimeframeInfo } from './builtins/timeframe';
+import { StrategyEngine } from './builtins/strategy';
+import { createLineModule } from './builtins/line';
+import { createLabelModule } from './builtins/label';
+import { createBoxModule } from './builtins/box';
+import { createTableModule } from './builtins/table';
+import { PlotData, HlineData, FillData, BgColorData, BarColorData, PlotShapeData, PlotCharData, PlotArrowData, PlotCandleData, PlotBarData } from './index';
+export interface RuntimeContext {
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    time: number;
+    bar_index: number;
+    hl2: number;
+    hlc3: number;
+    ohlc4: number;
+    last_bar_index: number;
+    last_bar_time: number;
+    series(name: string): Series<number>;
+    ta: TaModule;
+    math: typeof math;
+    color: typeof color;
+    barstate: BarState;
+    str: typeof str;
+    array: typeof arrayModule;
+    map: typeof mapModule;
+    matrix: typeof matrixModule;
+    syminfo: SymInfo;
+    timeframe: TimeframeInfo;
+    chart: {
+        fg_color: string;
+        bg_color: string;
+        is_standard: boolean;
+        is_heikinashi: boolean;
+        is_renko: boolean;
+        is_kagi: boolean;
+        is_pnf: boolean;
+        is_linebreak: boolean;
+        point: {
+            now: (price: number) => {
+                price: number;
+                time: number;
+                index: number;
+            };
+            from_index: (index: number, price: number) => {
+                index: number;
+                price: number;
+                time: number;
+            };
+            from_time: (time: number, price: number) => {
+                time: number;
+                price: number;
+                index: number;
+            };
+        };
+    };
+    line: ReturnType<typeof createLineModule>;
+    label: ReturnType<typeof createLabelModule>;
+    box: ReturnType<typeof createBoxModule>;
+    table: ReturnType<typeof createTableModule>;
+    time_close: number;
+    timenow: number;
+    hour(ts?: number, tz?: string): number;
+    minute(ts?: number, tz?: string): number;
+    second(ts?: number, tz?: string): number;
+    dayofweek(ts?: number, tz?: string): number;
+    dayofmonth(ts?: number, tz?: string): number;
+    month(ts?: number, tz?: string): number;
+    year(ts?: number, tz?: string): number;
+    timestamp(year: number, month: number, day: number, hour?: number, minute?: number, second?: number): number;
+    weekofyear(ts?: number, tz?: string): number;
+    timeInSession(timeframe?: string, session?: string, timezone?: string): number | symbol;
+    request: {
+        security: (...args: any[]) => any;
+    };
+    ticker: {
+        new: (...args: any[]) => string;
+        heikinashi: (ticker: string) => string;
+        renko?: (ticker: string, ...args: any[]) => string;
+        kagi?: (ticker: string, ...args: any[]) => string;
+        linebreak?: (ticker: string, ...args: any[]) => string;
+        pointfigure?: (ticker: string, ...args: any[]) => string;
+    };
+    session: {
+        ismarket: boolean;
+        ispremarket: boolean;
+        ispostmarket: boolean;
+        isfirstbar: boolean;
+        islastbar: boolean;
+        isfirstbar_regular: boolean;
+        islastbar_regular: boolean;
+    };
+    runtime: {
+        error: (message: string) => never;
+    };
+    state: Record<string, unknown>;
+    persistentState: Record<string, unknown>;
+    plot(index: number, value: number | null, opts?: Partial<PlotData>): number;
+    hline(index: number, price: number, opts?: Partial<HlineData>): number;
+    fill(p1: number | any, p2: number | any, opts?: {
+        color?: string;
+        title?: string;
+    }): void;
+    bgcolor(clr: string): void;
+    barcolor(clr: string): void;
+    plotshape(index: number, series: unknown, opts?: Record<string, unknown>): void;
+    plotchar(index: number, series: unknown, opts?: Record<string, unknown>): void;
+    plotarrow(index: number, series: unknown, opts?: Record<string, unknown>): void;
+    plotcandle(index: number, open: number, high: number, low: number, close: number, opts?: Record<string, unknown>): void;
+    plotbar(index: number, open: number, high: number, low: number, close: number, opts?: Record<string, unknown>): void;
+    setMetadata(meta: ScriptMetadata): void;
+    setInit(fn: () => void): void;
+    setExecute(fn: () => void): void;
+    getInput(id: string): unknown;
+    isNa: typeof isNa;
+    nz: typeof nz;
+    fixnan: typeof fixnan;
+    na: typeof NA;
+    toInt(val: any): number | null;
+    toFloat(val: any): number | null;
+    toBool(val: any): boolean;
+    toScalar(v: any): any;
+    userSeriesSet(name: string, value: unknown): void;
+    userSeriesGet(name: string, offset: number): unknown;
+    strategy: StrategyEngine;
+    alert(message: string, freq?: string): void;
+    alertcondition(condition: boolean, title?: string, message?: string): void;
+    log: {
+        info(message: string): void;
+        warning(message: string): void;
+        error(message: string): void;
+    };
+}
+export interface ContextInternals {
+    ctx: RuntimeContext;
+    metadata: ScriptMetadata | null;
+    initFn: (() => void) | null;
+    executeFn: (() => void) | null;
+    plots: Map<number, PlotData>;
+    hlines: HlineData[];
+    fills: FillData[];
+    bgcolors: BgColorData[];
+    barcolors: BarColorData[];
+    plotshapes: Map<number, PlotShapeData>;
+    plotchars: Map<number, PlotCharData>;
+    plotarrows: Map<number, PlotArrowData>;
+    plotcandles: Map<number, PlotCandleData>;
+    plotbars: Map<number, PlotBarData>;
+    strategyEngine: StrategyEngine;
+    updateBar(barIdx: number, builtins: BuiltinVariables, lastIndex: number): void;
+}
+export declare function createContext(builtins: BuiltinVariables, ta: TaModule, barsCount: number, lastBarTime?: number, executionTimenow?: number, userInputs?: Record<string, unknown>): ContextInternals;

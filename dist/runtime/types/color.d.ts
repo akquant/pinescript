@@ -1,0 +1,10 @@
+export declare const colorConstants: Record<string, string>;
+export declare function parseColorToRgba(c: string): [number, number, number, number];
+export declare function colorNew(baseColor: string, transparency?: number): string;
+export declare function rgb(r: number, g: number, b: number, transparency?: number): string;
+export declare function r(c: string): number;
+export declare function g(c: string): number;
+export declare function b(c: string): number;
+export declare function t(c: string): number;
+export declare function fromGradient(value: number, bottom_value: number, top_value: number, bottom_color: string, top_color: string): string;
+export declare const color: Record<string, unknown>;
