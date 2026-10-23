@@ -1,7 +1,7 @@
-# @loctaivan/pinescript
+# @quanttrade/pinescript
 
-[![npm version](https://img.shields.io/npm/v/@loctaivan/pinescript.svg)](https://www.npmjs.com/package/@loctaivan/pinescript)
-[![npm downloads](https://img.shields.io/npm/dm/@loctaivan/pinescript.svg)](https://www.npmjs.com/package/@loctaivan/pinescript)
+[![npm version](https://img.shields.io/npm/v/@quanttrade/pinescript.svg)](https://www.npmjs.com/package/@quanttrade/pinescript)
+[![npm downloads](https://img.shields.io/npm/dm/@quanttrade/pinescript.svg)](https://www.npmjs.com/package/@quanttrade/pinescript)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org)
@@ -42,18 +42,24 @@
 
 ## Installation
 
-Install from the public npm registry — no authentication or token required:
+### From Git (QuantTrade Ecosystem)
 
 ```bash
-npm install @loctaivan/pinescript
+npm install git+https://github.com/akquant/pinescript.git#v1.0.0
+```
+
+### From npm Registry
+
+```bash
+npm install @quanttrade/pinescript
 ```
 
 Or with Yarn / pnpm:
 
 ```bash
-yarn add @loctaivan/pinescript
+yarn add @quanttrade/pinescript
 # or
-pnpm add @loctaivan/pinescript
+pnpm add @quanttrade/pinescript
 ```
 
 ---
@@ -61,7 +67,7 @@ pnpm add @loctaivan/pinescript
 ## Quick Start
 
 ```typescript
-import { PineScriptRunner, type CandleData } from '@loctaivan/pinescript';
+import { PineScriptRunner, type CandleData } from '@quanttrade/pinescript';
 
 // 1. Prepare historical OHLCV candle data
 const candles: CandleData[] = [
@@ -190,7 +196,7 @@ import type {
   PineScriptRunResult,
   StrategySignal,
   StrategyPerformanceMetrics,
-} from '@loctaivan/pinescript';
+} from '@quanttrade/pinescript';
 ```
 
 ### `PineScriptRunResult` shape

@@ -1,5 +1,5 @@
 {
-  "name": "@loctaivan/pinescript",
+  "name": "@quanttrade/pinescript",
   "version": "1.0.0",
   "description": "Enterprise Pine Script compiler and high-performance execution engine for QuantTrade",
   "main": "./dist/index.js",
